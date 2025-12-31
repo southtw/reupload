@@ -1,0 +1,20 @@
+-- Decompiled game.ReplicatedStorage.Data.WeaponProperties.baseShotgun
+
+local v1 = game:GetService("ReplicatedStorage")
+local v2 = require(v1.Constants.WeaponConstants)
+return {
+    [v2.AMMO_ATTRIBUTE] = 1,
+    [v2.RELOADING_ATTRIBUTE] = false,
+    [v2.DAMAGE_ATTRIBUTE] = 150,
+    [v2.FIRE_MODE_ATTRIBUTE] = "Semi",
+    [v2.MAGAZINE_SIZE_ATTRIBUTE] = 1,
+    [v2.RANGE_ATTRIBUTE] = 300,
+    [v2.RATE_OF_FIRE_ATTRIBUTE] = 500,
+    [v2.RAY_RADIUS_ATTRIBUTE] = 0.2,
+    [v2.RAYS_PER_SHOT_ATTRIBUTE] = 1,
+    [v2.RECOIL_MAX_ATTRIBUTE] = Vector2.new(10, 75),
+    [v2.RECOIL_MIN_ATTRIBUTE] = Vector2.new(-10, 75),
+    [v2.RELOAD_TIME_ATTRIBUTE] = 0.85,
+    [v2.SPREAD_ATTRIBUTE] = 0,
+    [v2.UNANCHORED_IMPULSE_FORCE_ATTRIBUTE] = 0
+}
