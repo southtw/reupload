@@ -1,0 +1,94 @@
+setrobloxinput(true)
+
+print("Auto Piano made by spook1361. Paste your sequence into PATTERN. Use F1 to start/pause/resume, F3 to restart, F5 faster, F6 slower.")
+
+local HOLD=0.150 local GAP=0.055 local E=0.180 local SHIFT=0x10
+local paused=true
+local function togglePause() paused=not paused if paused then print("Paused") else print("Resumed") end end
+
+local function char_vk(c)
+    local b=string.byte(c)
+    if c>='0'and c<='9'then return b end
+    if c>='a'and c<='z'then return string.byte(string.upper(c)) end
+    if c>='A'and c<='Z'then return b end
+    return b
+end
+
+local function hit_char(c)
+    local vk=char_vk(c)
+    if not vk then return end
+    if c:match("%u")then
+        keypress(SHIFT)
+        keypress(vk)
+        wait(HOLD)
+        keyrelease(vk)
+        keyrelease(SHIFT)
+    else
+        keypress(vk)
+        wait(HOLD)
+        keyrelease(vk)
+    end
+    wait(GAP)
+end
+
+local function hit_chord(chars)
+    local needShift=false local vks={}
+    for i=1,#chars do
+        local c=chars:sub(i,i)
+        local vk=char_vk(c)
+        if vk then
+            vks[#vks+1]=vk
+            if c:match("%u")then needShift=true end
+        end
+    end
+    if needShift then keypress(SHIFT) end
+    for _,vk in ipairs(vks)do keypress(vk)end
+    wait(HOLD)
+    for _,vk in ipairs(vks)do keyrelease(vk)end
+    if needShift then keyrelease(SHIFT) end
+    wait(GAP)
+end
+
+local function rest_units(n)wait(E*n)end
+
+local function play_pattern(pattern)
+    local i=1 local len=#pattern
+    while i<=len do
+        if paused then
+            while paused do
+                if iskeypressed(0x70)then while iskeypressed(0x70)do wait(0.05)end togglePause()
+                elseif iskeypressed(0x72)then while iskeypressed(0x72)do wait(0.05)end print("Restarting from beginning...")return true end
+                wait(0.05)
+            end
+        end
+        local c=pattern:sub(i,i)
+        if c=='['then
+            local j=i+1 while j<=len and pattern:sub(j,j)~=']'do j=j+1 end
+            local chord_text=pattern:sub(i+1,j-1)
+            if #chord_text>0 then hit_chord(chord_text)end
+            i=j+1
+        elseif c=='-'then
+            local count=1 local j=i+1
+            while j<=len and pattern:sub(j,j)=='-'do count=count+1 j=j+1 end
+            rest_units(count) i=j
+        elseif c==' 'or c=='\n'or c=='\t'then
+            wait(GAP/2) i=i+1
+        else
+            local ok,err=pcall(function()hit_char(c)end)
+            if not ok then print("Invalid character '"..c.."' at position "..i)end
+            i=i+1
+        end
+        if iskeypressed(0x70)then while iskeypressed(0x70)do wait(0.05)end togglePause()
+        elseif iskeypressed(0x72)then while iskeypressed(0x72)do wait(0.05)end print("Restarting from beginning...")return true
+        elseif iskeypressed(0x74)then while iskeypressed(0x74)do wait(0.05)end HOLD=HOLD*0.9 GAP=GAP*0.9 E=E*0.9 print("Tempo up (faster): HOLD="..HOLD.." GAP="..GAP)
+        elseif iskeypressed(0x75)then while iskeypressed(0x75)do wait(0.05)end HOLD=HOLD*1.1 GAP=GAP*1.1 E=E*1.1 print("Tempo down (slower): HOLD="..HOLD.." GAP="..GAP)end
+    end
+    return false
+end
+
+local PATTERN=[[
+<PASTE YOUR SEQUENCE HERE>
+]]
+
+while true do local restart=play_pattern(PATTERN)if not restart then break end end
+print("Finished.")
